@@ -8,18 +8,23 @@ import { LEVELS, GAME_STATE } from './config.js';
 
 // Attendre le chargement du DOM
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('[Piano Hero] Initialisation...');
+
   // Récupérer le canvas
   const canvas = document.getElementById('game-canvas');
   if (!canvas) {
     console.error('Canvas non trouvé !');
     return;
   }
+  console.log('[Piano Hero] Canvas trouvé:', canvas);
 
   // Créer l'instance du jeu
   const game = new Game(canvas);
+  console.log('[Piano Hero] Instance créée, état:', game.state);
 
   // Initialiser le jeu
   game.init();
+  console.log('[Piano Hero] Jeu initialisé');
 
   // Configurer les écouteurs d'événements UI
   setupUIListeners(game);
@@ -29,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Exposer le jeu pour le debug (optionnel)
   window.game = game;
+  console.log('[Piano Hero] Prêt ! Tapez game.start() dans la console pour tester.');
 });
 
 /**
@@ -51,11 +57,13 @@ function setupUIListeners(game) {
   canvas.addEventListener('click', handleStart);
   if (startBtn) {
     startBtn.addEventListener('click', () => {
+      console.log('[Piano Hero] Clic sur Start, état actuel:', game.state);
       if (game.state === GAME_STATE.PLAYING) {
         game.stop();
       } else {
         game.start();
       }
+      console.log('[Piano Hero] Nouvel état:', game.state);
       updateStartButton(game.state);
     });
   }

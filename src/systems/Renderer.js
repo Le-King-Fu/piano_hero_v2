@@ -218,7 +218,12 @@ export class Renderer {
    * @param {number} highScore - Meilleur score
    */
   drawMenu(highScore) {
+    console.log('[Renderer] Dessin du menu');
     this.clear();
+
+    // Test visuel - rectangle pour vérifier que le canvas fonctionne
+    this.ctx.fillStyle = COLORS.PRIMARY;
+    this.ctx.fillRect(10, 10, 50, 10);
 
     // Titre
     this.ctx.fillStyle = COLORS.PRIMARY;

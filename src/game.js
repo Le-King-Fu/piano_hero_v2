@@ -63,6 +63,8 @@ export class Game {
    * Démarre une nouvelle partie
    */
   start() {
+    console.log('[Game] Démarrage...');
+
     // Initialiser l'audio (nécessite une interaction utilisateur)
     this.audio.init();
 
@@ -75,6 +77,7 @@ export class Game {
 
     // Changer l'état
     this.state = GAME_STATE.PLAYING;
+    console.log('[Game] État changé à PLAYING');
     if (this.onStateChange) this.onStateChange(this.state);
 
     // Démarrer la mélodie de fond
@@ -82,6 +85,7 @@ export class Game {
 
     // Démarrer la boucle de jeu
     this.lastTime = performance.now();
+    console.log('[Game] Lancement de la boucle de jeu');
     requestAnimationFrame(this._gameLoop);
   }
 
