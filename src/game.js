@@ -35,6 +35,7 @@ export class Game {
     // Level up automatique
     this.lastLevelUpScore = 0;
     this.levelUpDisplay = null; // { timer: ms } quand actif
+    this.gameOverDisplay = null; // { timer: ms } pour afficher "GAME OVER"
 
     // Timing
     this.lastTime = 0;
@@ -86,6 +87,7 @@ export class Game {
     this.startingLevel = this.currentLevel;
     this.lastLevelUpScore = 0;
     this.levelUpDisplay = null;
+    this.gameOverDisplay = null;
 
     // Changer l'état
     this.state = GAME_STATE.PLAYING;
@@ -200,6 +202,18 @@ export class Game {
     // Rendu
     this._render();
 
+    // Gérer l'affichage "GAME OVER" temporaire
+    if (this.gameOverDisplay) {
+      this.renderer.drawGameOverText();
+      this.gameOverDisplay.timer -= this.deltaTime;
+      if (this.gameOverDisplay.timer <= 0) {
+        this.gameOverDisplay = null;
+        this.stop();
+      }
+      requestAnimationFrame(this._gameLoop);
+      return;
+    }
+
     // Continuer la boucle si le jeu est en cours
     if (this.state === GAME_STATE.PLAYING) {
       requestAnimationFrame(this._gameLoop);
@@ -231,10 +245,10 @@ export class Game {
       const isVisible = note.update(level.speed, this.deltaTime);
 
       if (!isVisible) {
-        // Note sortie de l'écran
+        // Note sortie de l'écran sans être attrapée = perte de vie
         if (note.missed) {
           this.audio.playMissSound();
-          this._addMissEffect(note.lane);
+          this._loseLife(note.lane);
         }
         this.notes.splice(i, 1);
       }
@@ -336,32 +350,37 @@ export class Game {
       }
     }
 
-    // Aucune note trouvée = erreur, perte de vie
-    this._loseLife(noteType);
+    // Aucune note trouvée = pas de pénalité (on perd une vie seulement sur note manquée)
   }
 
   /**
-   * Perd une vie suite à une erreur
-   * @param {string} noteType - Type de note erronée
+   * Perd une vie suite à une note manquée
+   * @param {number} lane - Lane de la note manquée
    * @private
    */
-  _loseLife(noteType) {
+  _loseLife(lane) {
     this.lives--;
     this.audio.playMissSound();
 
-    // Trouver la lane correspondant à la touche
-    const laneIndex = ['C', 'D', 'E', 'F', 'G', 'A', 'B'].indexOf(noteType);
-    if (laneIndex !== -1) {
-      this._addMissEffect(laneIndex);
-    }
+    // Effet visuel
+    this._addMissEffect(lane);
 
     // Callback pour mettre à jour l'UI
     if (this.onLivesChange) this.onLivesChange(this.lives);
 
     // Game over si plus de vies
     if (this.lives <= 0) {
-      this.stop();
+      this._triggerGameOver();
     }
+  }
+
+  /**
+   * Déclenche le game over avec affichage temporaire
+   * @private
+   */
+  _triggerGameOver() {
+    this.audio.stopMelody();
+    this.gameOverDisplay = { timer: 1000 }; // Afficher "GAME OVER" pendant 1s
   }
 
   /**

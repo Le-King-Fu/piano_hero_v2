@@ -23,6 +23,14 @@ export class Renderer {
 
     // Police chargée
     this.fontLoaded = false;
+
+    // Charger l'image bonus
+    this.bonusImage = new Image();
+    this.bonusImage.src = 'bonus_piano.png';
+    this.bonusImageLoaded = false;
+    this.bonusImage.onload = () => {
+      this.bonusImageLoaded = true;
+    };
   }
 
   /**
@@ -116,25 +124,22 @@ export class Renderer {
     const drawY = centerY - height / 2;
 
     if (isBonus) {
-      // Note bonus (dorée avec effet pulsant)
-      this.ctx.fillStyle = hit ? COLORS.SECONDARY : COLORS.COIN;
+      // Note bonus avec image
+      if (this.bonusImageLoaded && !hit) {
+        // Dessiner l'image bonus redimensionnée
+        const imgSize = Math.min(width, height) + 4;
+        const imgX = Math.floor(centerX - imgSize / 2);
+        const imgY = Math.floor(centerY - imgSize / 2);
+        this.ctx.drawImage(this.bonusImage, imgX, imgY, imgSize, imgSize);
+      } else {
+        // Fallback : rectangle doré
+        this.ctx.fillStyle = hit ? COLORS.SECONDARY : COLORS.COIN;
+        this.ctx.fillRect(Math.floor(drawX), Math.floor(drawY), Math.floor(width), Math.floor(height));
 
-      // Rectangle principal
-      this.ctx.fillRect(Math.floor(drawX), Math.floor(drawY), Math.floor(width), Math.floor(height));
-
-      // Bordure pixelisée
-      this.ctx.strokeStyle = COLORS.DARK;
-      this.ctx.lineWidth = 1;
-      this.ctx.strokeRect(Math.floor(drawX), Math.floor(drawY), Math.floor(width), Math.floor(height));
-
-      // Étoile simple au centre (pixel art)
-      if (!hit) {
-        this.ctx.fillStyle = COLORS.WHITE;
-        const starX = Math.floor(centerX);
-        const starY = Math.floor(centerY);
-        // Petite croix pour représenter une étoile
-        this.ctx.fillRect(starX - 1, starY - 3, 2, 6);
-        this.ctx.fillRect(starX - 3, starY - 1, 6, 2);
+        // Bordure pixelisée
+        this.ctx.strokeStyle = COLORS.DARK;
+        this.ctx.lineWidth = 1;
+        this.ctx.strokeRect(Math.floor(drawX), Math.floor(drawY), Math.floor(width), Math.floor(height));
       }
     } else {
       // Note normale (verte)
@@ -223,6 +228,28 @@ export class Renderer {
       this.ctx.fillStyle = lives > 1 ? COLORS.ACCENT : COLORS.ACCENT;
       this.ctx.fillText(livesDisplay, 4, 24);
     }
+  }
+
+  /**
+   * Dessine l'affichage "GAME OVER" temporaire
+   */
+  drawGameOverText() {
+    // Fond semi-transparent
+    this.ctx.fillStyle = COLORS.BG;
+    this.ctx.globalAlpha = 0.7;
+    this.ctx.fillRect(CANVAS.WIDTH / 2 - 70, CANVAS.HEIGHT / 2 - 20, 140, 40);
+    this.ctx.globalAlpha = 1;
+
+    // Bordure
+    this.ctx.strokeStyle = COLORS.ACCENT;
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeRect(CANVAS.WIDTH / 2 - 70, CANVAS.HEIGHT / 2 - 20, 140, 40);
+
+    // Texte "GAME OVER"
+    this.ctx.fillStyle = COLORS.ACCENT;
+    this.ctx.font = '10px "Press Start 2P", monospace';
+    this.ctx.textAlign = 'center';
+    this.ctx.fillText('GAME OVER', CANVAS.WIDTH / 2, CANVAS.HEIGHT / 2 + 5);
   }
 
   /**

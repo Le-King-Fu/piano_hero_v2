@@ -20,6 +20,7 @@ vi.mock('../src/systems/Renderer.js', () => ({
     drawMissEffect: vi.fn(),
     drawPauseOverlay: vi.fn(),
     drawGameOver: vi.fn(),
+    drawGameOverText: vi.fn(),
     clear: vi.fn()
   }))
 }));
@@ -112,10 +113,12 @@ describe('Game - Système de vies', () => {
       expect(mockCallback).toHaveBeenCalledWith(game.lives);
     });
 
-    it('déclenche game over quand les vies tombent à 0', () => {
+    it('déclenche gameOverDisplay quand les vies tombent à 0', () => {
       game.lives = 1;
-      game._loseLife('F');
-      expect(game.state).toBe(GAME_STATE.GAME_OVER);
+      game._loseLife(0);
+      // Maintenant on affiche "GAME OVER" pendant 1s avant de passer à l'état GAME_OVER
+      expect(game.gameOverDisplay).not.toBeNull();
+      expect(game.gameOverDisplay.timer).toBe(1000);
     });
 
     it('ne déclenche pas game over si des vies restent', () => {
@@ -247,7 +250,7 @@ describe('Game - Level Up automatique', () => {
   });
 });
 
-describe('Game - Gestion des erreurs de touche', () => {
+describe('Game - Gestion des notes manquées', () => {
   let game;
   let mockCanvas;
   let notePressHandler;
@@ -284,15 +287,16 @@ describe('Game - Gestion des erreurs de touche', () => {
     vi.useRealTimers();
   });
 
-  it('perd une vie si aucune note ne correspond', () => {
+  it('ne perd pas de vie sur fausse touche (sans note correspondante)', () => {
     // Pas de notes dans la zone de hit
     game.notes = [];
     const initialLives = game.lives;
 
-    // Simuler une pression sur une touche
+    // Simuler une pression sur une touche sans note
     game._handleNotePress('C');
 
-    expect(game.lives).toBe(initialLives - 1);
+    // Pas de perte de vie sur fausse touche
+    expect(game.lives).toBe(initialLives);
   });
 
   it('ne perd pas de vie si une note correspond', () => {
@@ -311,5 +315,31 @@ describe('Game - Gestion des erreurs de touche', () => {
 
     expect(game.lives).toBe(initialLives);
     expect(mockNote.markAsHit).toHaveBeenCalled();
+  });
+
+  it('perd une vie quand une note est manquée (sort de l\'écran)', () => {
+    const initialLives = game.lives;
+
+    // Simuler une note manquée
+    game._loseLife(0);
+
+    expect(game.lives).toBe(initialLives - 1);
+  });
+
+  it('déclenche gameOverDisplay quand les vies tombent à 0', () => {
+    game.lives = 1;
+    game._loseLife(0);
+
+    expect(game.gameOverDisplay).not.toBeNull();
+    expect(game.gameOverDisplay.timer).toBe(1000);
+  });
+
+  it('gameOverDisplay se transforme en GAME_OVER après le timer', () => {
+    game.lives = 1;
+    game._loseLife(0);
+
+    // Le state est toujours PLAYING pendant l'affichage de "GAME OVER"
+    expect(game.state).toBe(GAME_STATE.PLAYING);
+    expect(game.gameOverDisplay).not.toBeNull();
   });
 });
