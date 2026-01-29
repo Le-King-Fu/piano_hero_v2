@@ -3,7 +3,7 @@
  * Gère la boucle de jeu, les états et la logique principale
  */
 
-import { GAME_STATE, LEVELS, BONUS, SCORE, CANVAS } from './config.js';
+import { GAME_STATE, LEVELS, BONUS, SCORE, CANVAS, LIVES, LEVEL_UP } from './config.js';
 import { Note } from './entities/Note.js';
 import { Input } from './systems/Input.js';
 import { Renderer } from './systems/Renderer.js';
@@ -29,6 +29,12 @@ export class Game {
     this.score = 0;
     this.highScore = this._loadHighScore();
     this.lastScore = 0;
+    this.lives = LIVES.INITIAL;
+    this.startingLevel = 0;
+
+    // Level up automatique
+    this.lastLevelUpScore = 0;
+    this.levelUpDisplay = null; // { timer: ms } quand actif
 
     // Timing
     this.lastTime = 0;
@@ -42,6 +48,8 @@ export class Game {
     // Callbacks UI
     this.onScoreChange = null;
     this.onStateChange = null;
+    this.onLivesChange = null;
+    this.onLevelChange = null;
 
     // Liaison du contexte pour requestAnimationFrame
     this._gameLoop = this._gameLoop.bind(this);
@@ -74,6 +82,10 @@ export class Game {
     this.lastNoteSpawn = 0;
     this.hitEffects = [];
     this.missEffects = [];
+    this.lives = LIVES.INITIAL;
+    this.startingLevel = this.currentLevel;
+    this.lastLevelUpScore = 0;
+    this.levelUpDisplay = null;
 
     // Changer l'état
     this.state = GAME_STATE.PLAYING;
@@ -267,8 +279,15 @@ export class Game {
       score: this.score,
       highScore: this.highScore,
       level: this.currentLevel,
-      levelName: this.getCurrentLevel().name
+      levelName: this.getCurrentLevel().name,
+      lives: this.lives,
+      maxLives: LIVES.MAX
     });
+
+    // Afficher le level up si actif
+    if (this.levelUpDisplay) {
+      this.renderer.drawLevelUp();
+    }
   }
 
   /**
@@ -307,10 +326,63 @@ export class Game {
         // Effet visuel
         this._addHitEffect(note.lane);
 
+        // Vérifier le level up
+        this._checkLevelUp();
+
         // Callback
         if (this.onScoreChange) this.onScoreChange(this.score);
 
         return; // Une seule note à la fois
+      }
+    }
+
+    // Aucune note trouvée = erreur, perte de vie
+    this._loseLife(noteType);
+  }
+
+  /**
+   * Perd une vie suite à une erreur
+   * @param {string} noteType - Type de note erronée
+   * @private
+   */
+  _loseLife(noteType) {
+    this.lives--;
+    this.audio.playMissSound();
+
+    // Trouver la lane correspondant à la touche
+    const laneIndex = ['C', 'D', 'E', 'F', 'G', 'A', 'B'].indexOf(noteType);
+    if (laneIndex !== -1) {
+      this._addMissEffect(laneIndex);
+    }
+
+    // Callback pour mettre à jour l'UI
+    if (this.onLivesChange) this.onLivesChange(this.lives);
+
+    // Game over si plus de vies
+    if (this.lives <= 0) {
+      this.stop();
+    }
+  }
+
+  /**
+   * Vérifie si un level up est nécessaire
+   * @private
+   */
+  _checkLevelUp() {
+    const threshold = LEVEL_UP.SCORE_THRESHOLD;
+    const currentThreshold = Math.floor(this.score / threshold);
+    const lastThreshold = Math.floor(this.lastLevelUpScore / threshold);
+
+    if (currentThreshold > lastThreshold) {
+      this.lastLevelUpScore = this.score;
+
+      // Augmenter le niveau si possible
+      if (this.currentLevel < LEVELS.length - 1) {
+        this.currentLevel++;
+        this.levelUpDisplay = { timer: LEVEL_UP.DISPLAY_DURATION };
+
+        // Callback pour notifier l'UI
+        if (this.onLevelChange) this.onLevelChange(this.currentLevel);
       }
     }
   }
@@ -351,6 +423,14 @@ export class Game {
       this.missEffects[i].timer -= this.deltaTime;
       if (this.missEffects[i].timer <= 0) {
         this.missEffects.splice(i, 1);
+      }
+    }
+
+    // Timer level up
+    if (this.levelUpDisplay) {
+      this.levelUpDisplay.timer -= this.deltaTime;
+      if (this.levelUpDisplay.timer <= 0) {
+        this.levelUpDisplay = null;
       }
     }
   }

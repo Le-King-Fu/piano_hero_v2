@@ -10,13 +10,13 @@ export const CANVAS = {
   SCALE: 2              // Facteur d'échelle pour l'affichage
 };
 
-// Palette de couleurs Cyberpunk/Neon (inspiré de witch_case)
+// Palette de couleurs Cyberpunk/Neon - Orange (inspiré de witch_case)
 export const COLORS = {
   BG: '#1a1a2e',           // Bleu-noir très foncé (fond principal)
   BG_SECONDARY: '#16213e', // Bleu nuit (fond secondaire)
   BG_DARK: '#0f3460',      // Bleu foncé (accents de fond)
-  PRIMARY: '#e94560',      // Rose/rouge néon (éléments principaux)
-  PRIMARY_DARK: '#c73e54', // Rose foncé (ombres)
+  PRIMARY: '#ff6b35',      // Orange néon (éléments principaux)
+  PRIMARY_DARK: '#e55a2b', // Orange foncé (ombres)
   SECONDARY: '#00ff88',    // Vert néon (score, succès)
   DARK: '#0f3460',         // Bleu foncé (séparateurs)
   ACCENT: '#ff6b6b',       // Rouge clair (erreurs/miss)
@@ -36,6 +36,17 @@ export const NOTE_NAMES_FR = {
   'G': 'Sol',
   'A': 'La',
   'B': 'Si'
+};
+
+// Mapping note -> touche clavier (pour l'affichage)
+export const NOTE_TO_KEY = {
+  'C': 'A',
+  'D': 'S',
+  'E': 'D',
+  'F': 'F',
+  'G': 'G',
+  'A': 'H',
+  'B': 'J'
 };
 
 // Dimensions des notes
@@ -105,6 +116,18 @@ export const SCORE = {
   HIT: 100,             // Points pour une note normale
   BONUS_HIT: 300,       // Points pour un bonus (100 * 3)
   MISS_PENALTY: 0       // Pas de pénalité pour l'instant
+};
+
+// Configuration des vies
+export const LIVES = {
+  INITIAL: 5,           // Nombre de vies au départ
+  MAX: 5                // Nombre maximum de vies
+};
+
+// Configuration du level up automatique
+export const LEVEL_UP = {
+  SCORE_THRESHOLD: 1500,  // Points nécessaires pour level up
+  DISPLAY_DURATION: 1000  // Durée d'affichage du "LEVEL UP" en ms
 };
 
 // États du jeu

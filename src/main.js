@@ -4,7 +4,7 @@
  */
 
 import { Game } from './game.js';
-import { LEVELS, GAME_STATE } from './config.js';
+import { LEVELS, GAME_STATE, LIVES } from './config.js';
 
 // Attendre le chargement du DOM
 document.addEventListener('DOMContentLoaded', () => {
@@ -102,6 +102,10 @@ function setupUIListeners(game) {
   // Callback de changement d'état
   game.onStateChange = (state) => {
     updateStartButton(state);
+    // Réinitialiser l'affichage des vies au démarrage
+    if (state === GAME_STATE.PLAYING) {
+      updateLivesDisplay(LIVES.INITIAL);
+    }
   };
 
   // Callback de changement de score
@@ -119,6 +123,43 @@ function setupUIListeners(game) {
       }
     }
   };
+
+  // Callback de changement de vies
+  game.onLivesChange = (lives) => {
+    updateLivesDisplay(lives);
+  };
+
+  // Callback de changement de niveau (level up)
+  game.onLevelChange = (level) => {
+    // Mettre à jour les boutons de niveau
+    const container = document.getElementById('level-selector');
+    if (container) {
+      container.querySelectorAll('.level-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', i === level);
+      });
+    }
+
+    // Mettre à jour l'affichage du nom de niveau
+    const levelName = document.getElementById('level-name');
+    if (levelName) {
+      levelName.textContent = LEVELS[level].name;
+    }
+  };
+}
+
+/**
+ * Met à jour l'affichage des vies
+ * @param {number} lives - Nombre de vies restantes
+ */
+function updateLivesDisplay(lives) {
+  const livesEl = document.querySelector('#lives span');
+  if (livesEl) {
+    let display = '';
+    for (let i = 0; i < LIVES.MAX; i++) {
+      display += i < lives ? '♥' : '♡';
+    }
+    livesEl.textContent = display;
+  }
 }
 
 /**

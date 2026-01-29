@@ -3,13 +3,13 @@
  * Inspiré de witch_case - Palette néon avec effets de glow
  */
 
-/* Variables de couleurs Cyberpunk/Neon */
+/* Variables de couleurs Cyberpunk/Neon - Orange */
 :root {
   --color-bg: #1a1a2e;
   --color-bg-secondary: #16213e;
   --color-bg-dark: #0f3460;
-  --color-primary: #e94560;
-  --color-primary-dark: #c73e54;
+  --color-primary: #ff6b35;
+  --color-primary-dark: #e55a2b;
   --color-secondary: #00ff88;
   --color-accent: #ff6b6b;
   --color-coin: #ffcc00;
@@ -51,7 +51,7 @@ body {
   height: 480px;
   border: 3px solid var(--color-primary);
   background-color: #0a0a0a;
-  box-shadow: 0 0 20px rgba(233, 69, 96, 0.3);
+  box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
 
   /* Rendu pixel art net */
   image-rendering: pixelated;
@@ -76,7 +76,8 @@ body {
 }
 
 #score,
-#high-score {
+#high-score,
+#lives {
   background-color: rgba(0, 0, 0, 0.3);
   padding: 8px 12px;
   border: 2px solid var(--color-primary);
@@ -96,6 +97,12 @@ body {
 #high-score span {
   color: var(--color-coin);
   text-shadow: 0 0 5px var(--color-coin);
+}
+
+#lives span {
+  color: var(--color-accent);
+  text-shadow: 0 0 5px var(--color-accent);
+  letter-spacing: 2px;
 }
 
 /* Contrôles */
@@ -142,7 +149,7 @@ body {
 
 .level-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 0 var(--color-primary-dark), 0 0 10px rgba(233, 69, 96, 0.5);
+  box-shadow: 0 5px 0 var(--color-primary-dark), 0 0 10px rgba(255, 107, 53, 0.5);
 }
 
 .level-btn:active {
@@ -194,7 +201,7 @@ body {
 #start-btn:hover,
 #mute-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 0 var(--color-primary-dark), 0 0 15px rgba(233, 69, 96, 0.5);
+  box-shadow: 0 6px 0 var(--color-primary-dark), 0 0 15px rgba(255, 107, 53, 0.5);
 }
 
 #start-btn:active,
@@ -251,8 +258,8 @@ body {
 }
 
 .key:hover {
-  background: rgba(233, 69, 96, 0.2);
-  box-shadow: 0 0 10px rgba(233, 69, 96, 0.3);
+  background: rgba(255, 107, 53, 0.2);
+  box-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
 }
 
 .key.active,
@@ -260,7 +267,7 @@ body {
   background: var(--color-primary);
   color: var(--color-white);
   transform: translateY(2px);
-  box-shadow: 0 0 15px rgba(233, 69, 96, 0.5);
+  box-shadow: 0 0 15px rgba(255, 107, 53, 0.5);
 }
 
 .key.active span,

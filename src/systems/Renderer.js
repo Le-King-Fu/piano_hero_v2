@@ -3,7 +3,7 @@
  * Gère le canvas avec upscaling et style Game Boy
  */
 
-import { CANVAS, COLORS, NOTES, HIT_ZONE, NOTE_NAMES_FR } from '../config.js';
+import { CANVAS, COLORS, NOTES, HIT_ZONE, NOTE_TO_KEY } from '../config.js';
 import { Input } from './Input.js';
 
 export class Renderer {
@@ -151,7 +151,7 @@ export class Renderer {
         this.ctx.fillStyle = COLORS.BG;
         this.ctx.font = '6px "Press Start 2P", monospace';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText(NOTE_NAMES_FR[type], Math.floor(centerX), Math.floor(centerY + 2));
+        this.ctx.fillText(NOTE_TO_KEY[type], Math.floor(centerX), Math.floor(centerY + 2));
       }
     }
 
@@ -184,16 +184,16 @@ export class Renderer {
       this.ctx.fillStyle = isActive ? COLORS.BG : COLORS.DARK;
       this.ctx.font = '6px "Press Start 2P", monospace';
       this.ctx.textAlign = 'center';
-      this.ctx.fillText(NOTE_NAMES_FR[note], Math.floor(x + this.laneWidth / 2), pianoY + 13);
+      this.ctx.fillText(NOTE_TO_KEY[note], Math.floor(x + this.laneWidth / 2), pianoY + 13);
     }
   }
 
   /**
-   * Dessine l'interface utilisateur (score, niveau)
+   * Dessine l'interface utilisateur (score, niveau, vies)
    * @param {Object} uiData - Données de l'UI
    */
   drawUI(uiData) {
-    const { score, highScore, level, levelName } = uiData;
+    const { score, highScore, level, levelName, lives, maxLives } = uiData;
 
     this.ctx.fillStyle = COLORS.PRIMARY;
     this.ctx.font = '8px "Press Start 2P", monospace';
@@ -211,6 +211,40 @@ export class Renderer {
       this.ctx.textAlign = 'center';
       this.ctx.fillText(levelName.toUpperCase(), CANVAS.WIDTH / 2, 12);
     }
+
+    // Vies en dessous du score (coeurs)
+    if (lives !== undefined) {
+      this.ctx.textAlign = 'left';
+      this.ctx.font = '6px "Press Start 2P", monospace';
+      let livesDisplay = '';
+      for (let i = 0; i < maxLives; i++) {
+        livesDisplay += i < lives ? '♥' : '♡';
+      }
+      this.ctx.fillStyle = lives > 1 ? COLORS.ACCENT : COLORS.ACCENT;
+      this.ctx.fillText(livesDisplay, 4, 24);
+    }
+  }
+
+  /**
+   * Dessine l'affichage "LEVEL UP!"
+   */
+  drawLevelUp() {
+    // Fond semi-transparent
+    this.ctx.fillStyle = COLORS.BG;
+    this.ctx.globalAlpha = 0.6;
+    this.ctx.fillRect(CANVAS.WIDTH / 2 - 60, CANVAS.HEIGHT / 2 - 20, 120, 40);
+    this.ctx.globalAlpha = 1;
+
+    // Bordure
+    this.ctx.strokeStyle = COLORS.SECONDARY;
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeRect(CANVAS.WIDTH / 2 - 60, CANVAS.HEIGHT / 2 - 20, 120, 40);
+
+    // Texte "LEVEL UP!"
+    this.ctx.fillStyle = COLORS.SECONDARY;
+    this.ctx.font = '10px "Press Start 2P", monospace';
+    this.ctx.textAlign = 'center';
+    this.ctx.fillText('LEVEL UP!', CANVAS.WIDTH / 2, CANVAS.HEIGHT / 2 + 5);
   }
 
   /**
