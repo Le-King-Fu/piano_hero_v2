@@ -10,15 +10,18 @@ export const CANVAS = {
   SCALE: 2              // Facteur d'échelle pour l'affichage
 };
 
-// Palette de couleurs Game Boy
+// Palette de couleurs Cyberpunk/Neon (inspiré de witch_case)
 export const COLORS = {
-  BG: '#0f380f',        // Vert très foncé (fond)
-  PRIMARY: '#9bbc0f',   // Vert clair (éléments principaux)
-  SECONDARY: '#8bac0f', // Vert moyen
-  DARK: '#306230',      // Vert foncé
-  ACCENT: '#ff6b6b',    // Rouge (erreurs/miss)
-  COIN: '#ffd700',      // Or (bonus)
-  WHITE: '#d0f0c0'      // Blanc cassé pour textes
+  BG: '#1a1a2e',           // Bleu-noir très foncé (fond principal)
+  BG_SECONDARY: '#16213e', // Bleu nuit (fond secondaire)
+  BG_DARK: '#0f3460',      // Bleu foncé (accents de fond)
+  PRIMARY: '#e94560',      // Rose/rouge néon (éléments principaux)
+  PRIMARY_DARK: '#c73e54', // Rose foncé (ombres)
+  SECONDARY: '#00ff88',    // Vert néon (score, succès)
+  DARK: '#0f3460',         // Bleu foncé (séparateurs)
+  ACCENT: '#ff6b6b',       // Rouge clair (erreurs/miss)
+  COIN: '#ffcc00',         // Or/jaune (bonus)
+  WHITE: '#ffffff'         // Blanc pur pour textes
 };
 
 // Configuration des notes
