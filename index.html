@@ -1,33 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Piano Hero</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Héro du Piano</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="game-container">
-        <canvas id="game-canvas"></canvas>
-        <div id="piano">
-            <div class="key white" data-note="C"></div>
-            <div class="key black" data-note="C#"></div>
-            <div class="key white" data-note="D"></div>
-            <div class="key black" data-note="D#"></div>
-            <div class="key white" data-note="E"></div>
-            <div class="key white" data-note="F"></div>
-            <div class="key black" data-note="F#"></div>
-            <div class="key white" data-note="G"></div>
-            <div class="key black" data-note="G#"></div>
-            <div class="key white" data-note="A"></div>
-            <div class="key black" data-note="A#"></div>
-            <div class="key white" data-note="B"></div>
+  <div id="game-container">
+    <!-- Canvas du jeu -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Interface utilisateur -->
+    <div id="ui">
+      <div id="scores">
+        <div id="score">SCORE: <span>0</span></div>
+        <div id="high-score">RECORD: <span>0</span></div>
+      </div>
+
+      <div id="controls">
+        <!-- Sélecteur de niveau -->
+        <div id="level-section">
+          <span id="level-label">NIVEAU:</span>
+          <div id="level-selector"></div>
+          <span id="level-name"></span>
         </div>
-        <div id="ui">
-            <div id="score">Score: <span>0</span></div>
-            <button id="start-btn">Start Game</button>
+
+        <!-- Boutons de contrôle -->
+        <div id="buttons">
+          <button id="start-btn">JOUER</button>
+          <button id="mute-btn">SON: ON</button>
         </div>
+      </div>
     </div>
-    <script src="game.js"></script>
+
+    <!-- Piano visuel pour le tactile -->
+    <div id="piano">
+      <div class="key" data-note="C">Do<span>A</span></div>
+      <div class="key" data-note="D">Ré<span>S</span></div>
+      <div class="key" data-note="E">Mi<span>D</span></div>
+      <div class="key" data-note="F">Fa<span>F</span></div>
+      <div class="key" data-note="G">Sol<span>G</span></div>
+      <div class="key" data-note="A">La<span>H</span></div>
+      <div class="key" data-note="B">Si<span>J</span></div>
+    </div>
+
+    <!-- Instructions -->
+    <div id="instructions">
+      <p>TOUCHES: A S D F G H J | ESPACE: Pause | ÉCHAP: Menu</p>
+    </div>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
 </body>
 </html>

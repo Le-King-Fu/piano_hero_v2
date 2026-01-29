@@ -1,16 +1,27 @@
-# OS files
+# Dépendances
+node_modules/
+
+# Build
+dist/
+build/
+
+# Couverture de tests
+coverage/
+
+# Fichiers de logs
+*.log
+npm-debug.log*
+
+# Fichiers système
 .DS_Store
 Thumbs.db
 
-# Editor files
-.vscode/
+# Éditeurs
 .idea/
+.vscode/
 *.swp
 *.swo
 
-# Dependencies (if added later)
-node_modules/
-
-# Build output (if added later)
-dist/
-build/
+# Variables d'environnement
+.env
+.env.local
