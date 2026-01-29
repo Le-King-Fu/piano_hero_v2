@@ -126,8 +126,8 @@ export class Renderer {
     if (isBonus) {
       // Note bonus avec image
       if (this.bonusImageLoaded && !hit) {
-        // Dessiner l'image bonus redimensionnée
-        const imgSize = Math.min(width, height) + 4;
+        // Dessiner l'image bonus - taille plus grande pour voir le visage
+        const imgSize = width + 8; // Utilise la largeur de lane pour une meilleure visibilité
         const imgX = Math.floor(centerX - imgSize / 2);
         const imgY = Math.floor(centerY - imgSize / 2);
         this.ctx.drawImage(this.bonusImage, imgX, imgY, imgSize, imgSize);
