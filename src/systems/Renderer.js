@@ -24,13 +24,47 @@ export class Renderer {
     // Police chargée
     this.fontLoaded = false;
 
-    // Charger l'image bonus
-    this.bonusImage = new Image();
-    this.bonusImage.src = 'bonus_piano.png';
-    this.bonusImageLoaded = false;
-    this.bonusImage.onload = () => {
-      this.bonusImageLoaded = true;
-    };
+    // Charger les images bonus (rotation)
+    this.bonusImages = [];
+    this.bonusImagesLoaded = 0;
+    this.loadBonusImages();
+  }
+
+  /**
+   * Charge toutes les images bonus disponibles
+   */
+  loadBonusImages() {
+    // Liste des images bonus à charger
+    const bonusImageFiles = [
+      'bonus_piano.png',  // Image originale
+      'src/entities/bonus_pic/extracted_face_1.png',
+      'src/entities/bonus_pic/extracted_face_2.png',
+      'src/entities/bonus_pic/extracted_face_k1.png',
+      'src/entities/bonus_pic/extracted_face_k2.png',
+      'src/entities/bonus_pic/extracted_face_k3.png'
+    ];
+
+    bonusImageFiles.forEach((filename, index) => {
+      const img = new Image();
+      img.src = filename;
+      img.onload = () => {
+        this.bonusImagesLoaded++;
+      };
+      img.onerror = () => {
+        // Image non trouvée, on l'ignore silencieusement
+      };
+      this.bonusImages.push(img);
+    });
+  }
+
+  /**
+   * Retourne une image bonus aléatoire parmi celles chargées
+   * @returns {HTMLImageElement|null}
+   */
+  getRandomBonusImage() {
+    const loadedImages = this.bonusImages.filter(img => img.complete && img.naturalWidth > 0);
+    if (loadedImages.length === 0) return null;
+    return loadedImages[Math.floor(Math.random() * loadedImages.length)];
   }
 
   /**
@@ -66,7 +100,7 @@ export class Renderer {
    */
   drawLanes() {
     this.ctx.strokeStyle = COLORS.DARK;
-    this.ctx.lineWidth = 1;
+    this.ctx.lineWidth = 2;
 
     for (let i = 1; i < NOTES.length; i++) {
       const x = Math.floor(i * this.laneWidth);
@@ -89,7 +123,7 @@ export class Renderer {
 
     // Ligne de hit
     this.ctx.strokeStyle = COLORS.PRIMARY;
-    this.ctx.lineWidth = 2;
+    this.ctx.lineWidth = 3;
     this.ctx.beginPath();
     this.ctx.moveTo(0, HIT_ZONE.Y);
     this.ctx.lineTo(CANVAS.WIDTH, HIT_ZONE.Y);
@@ -97,14 +131,14 @@ export class Renderer {
 
     // Labels des touches
     this.ctx.fillStyle = COLORS.PRIMARY;
-    this.ctx.font = '8px "Press Start 2P", monospace';
+    this.ctx.font = '16px "Press Start 2P", monospace';
     this.ctx.textAlign = 'center';
 
     for (let i = 0; i < NOTES.length; i++) {
       const x = i * this.laneWidth + this.laneWidth / 2;
       const keys = Input.getNoteKeys(NOTES[i]);
       // Afficher la première touche (AZERTY)
-      this.ctx.fillText(keys[0], x, HIT_ZONE.Y + HIT_ZONE.HEIGHT - 4);
+      this.ctx.fillText(keys[0], x, HIT_ZONE.Y + HIT_ZONE.HEIGHT - 8);
     }
   }
 
@@ -113,7 +147,7 @@ export class Renderer {
    * @param {Object} noteData - Données de rendu de la note
    */
   drawNote(noteData) {
-    const { x, y, width, height, type, lane, isBonus, hit, alpha, scale } = noteData;
+    const { x, y, width, height, type, lane, isBonus, bonusImageIndex, hit, alpha, scale } = noteData;
 
     this.ctx.globalAlpha = alpha;
 
@@ -124,21 +158,26 @@ export class Renderer {
     const drawY = centerY - height / 2;
 
     if (isBonus) {
-      // Note bonus avec image
-      if (this.bonusImageLoaded && !hit) {
+      // Note bonus avec image (rotation parmi les images disponibles)
+      const loadedImages = this.bonusImages.filter(img => img.complete && img.naturalWidth > 0);
+      const bonusImage = loadedImages.length > 0
+        ? loadedImages[bonusImageIndex % loadedImages.length]
+        : null;
+
+      if (bonusImage && !hit) {
         // Dessiner l'image bonus - taille plus grande pour voir le visage
-        const imgSize = width + 8; // Utilise la largeur de lane pour une meilleure visibilité
+        const imgSize = width + 16; // Taille augmentée pour HD
         const imgX = Math.floor(centerX - imgSize / 2);
         const imgY = Math.floor(centerY - imgSize / 2);
-        this.ctx.drawImage(this.bonusImage, imgX, imgY, imgSize, imgSize);
+        this.ctx.drawImage(bonusImage, imgX, imgY, imgSize, imgSize);
       } else {
         // Fallback : rectangle doré
         this.ctx.fillStyle = hit ? COLORS.SECONDARY : COLORS.COIN;
         this.ctx.fillRect(Math.floor(drawX), Math.floor(drawY), Math.floor(width), Math.floor(height));
 
-        // Bordure pixelisée
+        // Bordure
         this.ctx.strokeStyle = COLORS.DARK;
-        this.ctx.lineWidth = 1;
+        this.ctx.lineWidth = 2;
         this.ctx.strokeRect(Math.floor(drawX), Math.floor(drawY), Math.floor(width), Math.floor(height));
       }
     } else {
@@ -148,15 +187,15 @@ export class Renderer {
 
       // Bordure
       this.ctx.strokeStyle = COLORS.DARK;
-      this.ctx.lineWidth = 1;
+      this.ctx.lineWidth = 2;
       this.ctx.strokeRect(Math.floor(drawX), Math.floor(drawY), Math.floor(width), Math.floor(height));
 
       // Nom de la note
       if (!hit) {
         this.ctx.fillStyle = COLORS.BG;
-        this.ctx.font = '6px "Press Start 2P", monospace';
+        this.ctx.font = '12px "Press Start 2P", monospace';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText(NOTE_TO_KEY[type], Math.floor(centerX), Math.floor(centerY + 2));
+        this.ctx.fillText(NOTE_TO_KEY[type], Math.floor(centerX), Math.floor(centerY + 4));
       }
     }
 
@@ -168,8 +207,8 @@ export class Renderer {
    * @param {string[]} activeNotes - Notes actuellement pressées
    */
   drawPiano(activeNotes = []) {
-    const pianoY = CANVAS.HEIGHT - 24;
-    const keyHeight = 20;
+    const pianoY = CANVAS.HEIGHT - 48;
+    const keyHeight = 40;
 
     for (let i = 0; i < NOTES.length; i++) {
       const x = i * this.laneWidth;
@@ -178,18 +217,18 @@ export class Renderer {
 
       // Touche du piano
       this.ctx.fillStyle = isActive ? COLORS.PRIMARY : COLORS.SECONDARY;
-      this.ctx.fillRect(Math.floor(x + 2), pianoY, Math.floor(this.laneWidth - 4), keyHeight);
+      this.ctx.fillRect(Math.floor(x + 4), pianoY, Math.floor(this.laneWidth - 8), keyHeight);
 
       // Bordure
       this.ctx.strokeStyle = COLORS.DARK;
-      this.ctx.lineWidth = 1;
-      this.ctx.strokeRect(Math.floor(x + 2), pianoY, Math.floor(this.laneWidth - 4), keyHeight);
+      this.ctx.lineWidth = 2;
+      this.ctx.strokeRect(Math.floor(x + 4), pianoY, Math.floor(this.laneWidth - 8), keyHeight);
 
       // Nom de la note
       this.ctx.fillStyle = isActive ? COLORS.BG : COLORS.DARK;
-      this.ctx.font = '6px "Press Start 2P", monospace';
+      this.ctx.font = '12px "Press Start 2P", monospace';
       this.ctx.textAlign = 'center';
-      this.ctx.fillText(NOTE_TO_KEY[note], Math.floor(x + this.laneWidth / 2), pianoY + 13);
+      this.ctx.fillText(NOTE_TO_KEY[note], Math.floor(x + this.laneWidth / 2), pianoY + 26);
     }
   }
 
@@ -201,32 +240,32 @@ export class Renderer {
     const { score, highScore, level, levelName, lives, maxLives } = uiData;
 
     this.ctx.fillStyle = COLORS.PRIMARY;
-    this.ctx.font = '8px "Press Start 2P", monospace';
+    this.ctx.font = '16px "Press Start 2P", monospace';
 
     // Score en haut à gauche
     this.ctx.textAlign = 'left';
-    this.ctx.fillText(`SCORE: ${score}`, 4, 12);
+    this.ctx.fillText(`SCORE: ${score}`, 8, 24);
 
     // High score en haut à droite
     this.ctx.textAlign = 'right';
-    this.ctx.fillText(`MAX: ${highScore}`, CANVAS.WIDTH - 4, 12);
+    this.ctx.fillText(`MAX: ${highScore}`, CANVAS.WIDTH - 8, 24);
 
     // Niveau au centre
     if (levelName) {
       this.ctx.textAlign = 'center';
-      this.ctx.fillText(levelName.toUpperCase(), CANVAS.WIDTH / 2, 12);
+      this.ctx.fillText(levelName.toUpperCase(), CANVAS.WIDTH / 2, 24);
     }
 
     // Vies en dessous du score (coeurs)
     if (lives !== undefined) {
       this.ctx.textAlign = 'left';
-      this.ctx.font = '6px "Press Start 2P", monospace';
+      this.ctx.font = '12px "Press Start 2P", monospace';
       let livesDisplay = '';
       for (let i = 0; i < maxLives; i++) {
         livesDisplay += i < lives ? '♥' : '♡';
       }
       this.ctx.fillStyle = lives > 1 ? COLORS.ACCENT : COLORS.ACCENT;
-      this.ctx.fillText(livesDisplay, 4, 24);
+      this.ctx.fillText(livesDisplay, 8, 44);
     }
   }
 
@@ -237,19 +276,19 @@ export class Renderer {
     // Fond semi-transparent
     this.ctx.fillStyle = COLORS.BG;
     this.ctx.globalAlpha = 0.7;
-    this.ctx.fillRect(CANVAS.WIDTH / 2 - 70, CANVAS.HEIGHT / 2 - 20, 140, 40);
+    this.ctx.fillRect(CANVAS.WIDTH / 2 - 140, CANVAS.HEIGHT / 2 - 40, 280, 80);
     this.ctx.globalAlpha = 1;
 
     // Bordure
     this.ctx.strokeStyle = COLORS.ACCENT;
-    this.ctx.lineWidth = 2;
-    this.ctx.strokeRect(CANVAS.WIDTH / 2 - 70, CANVAS.HEIGHT / 2 - 20, 140, 40);
+    this.ctx.lineWidth = 3;
+    this.ctx.strokeRect(CANVAS.WIDTH / 2 - 140, CANVAS.HEIGHT / 2 - 40, 280, 80);
 
     // Texte "GAME OVER"
     this.ctx.fillStyle = COLORS.ACCENT;
-    this.ctx.font = '10px "Press Start 2P", monospace';
+    this.ctx.font = '20px "Press Start 2P", monospace';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText('GAME OVER', CANVAS.WIDTH / 2, CANVAS.HEIGHT / 2 + 5);
+    this.ctx.fillText('GAME OVER', CANVAS.WIDTH / 2, CANVAS.HEIGHT / 2 + 8);
   }
 
   /**
@@ -259,19 +298,19 @@ export class Renderer {
     // Fond semi-transparent
     this.ctx.fillStyle = COLORS.BG;
     this.ctx.globalAlpha = 0.6;
-    this.ctx.fillRect(CANVAS.WIDTH / 2 - 60, CANVAS.HEIGHT / 2 - 20, 120, 40);
+    this.ctx.fillRect(CANVAS.WIDTH / 2 - 120, CANVAS.HEIGHT / 2 - 40, 240, 80);
     this.ctx.globalAlpha = 1;
 
     // Bordure
     this.ctx.strokeStyle = COLORS.SECONDARY;
-    this.ctx.lineWidth = 2;
-    this.ctx.strokeRect(CANVAS.WIDTH / 2 - 60, CANVAS.HEIGHT / 2 - 20, 120, 40);
+    this.ctx.lineWidth = 3;
+    this.ctx.strokeRect(CANVAS.WIDTH / 2 - 120, CANVAS.HEIGHT / 2 - 40, 240, 80);
 
     // Texte "LEVEL UP!"
     this.ctx.fillStyle = COLORS.SECONDARY;
-    this.ctx.font = '10px "Press Start 2P", monospace';
+    this.ctx.font = '20px "Press Start 2P", monospace';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText('LEVEL UP!', CANVAS.WIDTH / 2, CANVAS.HEIGHT / 2 + 5);
+    this.ctx.fillText('LEVEL UP!', CANVAS.WIDTH / 2, CANVAS.HEIGHT / 2 + 8);
   }
 
   /**
@@ -282,34 +321,30 @@ export class Renderer {
     console.log('[Renderer] Dessin du menu');
     this.clear();
 
-    // Test visuel - rectangle pour vérifier que le canvas fonctionne
-    this.ctx.fillStyle = COLORS.PRIMARY;
-    this.ctx.fillRect(10, 10, 50, 10);
-
     // Titre
     this.ctx.fillStyle = COLORS.PRIMARY;
-    this.ctx.font = '12px "Press Start 2P", monospace';
+    this.ctx.font = '24px "Press Start 2P", monospace';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText('HERO DU', CANVAS.WIDTH / 2, 60);
-    this.ctx.fillText('PIANO', CANVAS.WIDTH / 2, 80);
+    this.ctx.fillText('HERO DU', CANVAS.WIDTH / 2, 120);
+    this.ctx.fillText('PIANO', CANVAS.WIDTH / 2, 160);
 
     // Instructions
-    this.ctx.font = '6px "Press Start 2P", monospace';
+    this.ctx.font = '12px "Press Start 2P", monospace';
     this.ctx.fillStyle = COLORS.SECONDARY;
-    this.ctx.fillText('APPUIE SUR LES TOUCHES', CANVAS.WIDTH / 2, 120);
-    this.ctx.fillText('A S D F G H J', CANVAS.WIDTH / 2, 135);
+    this.ctx.fillText('APPUIE SUR LES TOUCHES', CANVAS.WIDTH / 2, 240);
+    this.ctx.fillText('A S D F G H J', CANVAS.WIDTH / 2, 270);
 
     // High score
     if (highScore > 0) {
       this.ctx.fillStyle = COLORS.COIN;
-      this.ctx.fillText(`RECORD: ${highScore}`, CANVAS.WIDTH / 2, 160);
+      this.ctx.fillText(`RECORD: ${highScore}`, CANVAS.WIDTH / 2, 320);
     }
 
     // Démarrer
     this.ctx.fillStyle = COLORS.PRIMARY;
-    this.ctx.font = '8px "Press Start 2P", monospace';
-    this.ctx.fillText('CLIQUER POUR', CANVAS.WIDTH / 2, 200);
-    this.ctx.fillText('COMMENCER', CANVAS.WIDTH / 2, 215);
+    this.ctx.font = '16px "Press Start 2P", monospace';
+    this.ctx.fillText('CLIQUER POUR', CANVAS.WIDTH / 2, 400);
+    this.ctx.fillText('COMMENCER', CANVAS.WIDTH / 2, 430);
   }
 
   /**
@@ -324,12 +359,12 @@ export class Renderer {
 
     // Texte
     this.ctx.fillStyle = COLORS.PRIMARY;
-    this.ctx.font = '12px "Press Start 2P", monospace';
+    this.ctx.font = '24px "Press Start 2P", monospace';
     this.ctx.textAlign = 'center';
     this.ctx.fillText('PAUSE', CANVAS.WIDTH / 2, CANVAS.HEIGHT / 2);
 
-    this.ctx.font = '6px "Press Start 2P", monospace';
-    this.ctx.fillText('ESPACE POUR REPRENDRE', CANVAS.WIDTH / 2, CANVAS.HEIGHT / 2 + 20);
+    this.ctx.font = '12px "Press Start 2P", monospace';
+    this.ctx.fillText('ESPACE POUR REPRENDRE', CANVAS.WIDTH / 2, CANVAS.HEIGHT / 2 + 40);
   }
 
   /**
@@ -347,29 +382,29 @@ export class Renderer {
 
     // Titre
     this.ctx.fillStyle = COLORS.ACCENT;
-    this.ctx.font = '10px "Press Start 2P", monospace';
+    this.ctx.font = '20px "Press Start 2P", monospace';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText('FIN DE PARTIE', CANVAS.WIDTH / 2, 80);
+    this.ctx.fillText('FIN DE PARTIE', CANVAS.WIDTH / 2, 160);
 
     // Score
     this.ctx.fillStyle = COLORS.PRIMARY;
-    this.ctx.font = '8px "Press Start 2P", monospace';
-    this.ctx.fillText(`SCORE: ${score}`, CANVAS.WIDTH / 2, 120);
+    this.ctx.font = '16px "Press Start 2P", monospace';
+    this.ctx.fillText(`SCORE: ${score}`, CANVAS.WIDTH / 2, 240);
 
     // Nouveau record
     if (isNewHighScore) {
       this.ctx.fillStyle = COLORS.COIN;
-      this.ctx.fillText('NOUVEAU RECORD!', CANVAS.WIDTH / 2, 145);
+      this.ctx.fillText('NOUVEAU RECORD!', CANVAS.WIDTH / 2, 290);
     }
 
     // High score
     this.ctx.fillStyle = COLORS.SECONDARY;
-    this.ctx.fillText(`RECORD: ${highScore}`, CANVAS.WIDTH / 2, 170);
+    this.ctx.fillText(`RECORD: ${highScore}`, CANVAS.WIDTH / 2, 340);
 
     // Rejouer
     this.ctx.fillStyle = COLORS.PRIMARY;
-    this.ctx.font = '6px "Press Start 2P", monospace';
-    this.ctx.fillText('CLIQUER POUR REJOUER', CANVAS.WIDTH / 2, 210);
+    this.ctx.font = '12px "Press Start 2P", monospace';
+    this.ctx.fillText('CLIQUER POUR REJOUER', CANVAS.WIDTH / 2, 420);
   }
 
   /**
@@ -381,7 +416,7 @@ export class Renderer {
 
     this.ctx.fillStyle = COLORS.PRIMARY;
     this.ctx.globalAlpha = 0.5;
-    this.ctx.fillRect(x, HIT_ZONE.Y - 10, this.laneWidth, HIT_ZONE.HEIGHT + 20);
+    this.ctx.fillRect(x, HIT_ZONE.Y - 20, this.laneWidth, HIT_ZONE.HEIGHT + 40);
     this.ctx.globalAlpha = 1;
   }
 
@@ -394,7 +429,7 @@ export class Renderer {
 
     this.ctx.fillStyle = COLORS.ACCENT;
     this.ctx.globalAlpha = 0.5;
-    this.ctx.fillRect(x, HIT_ZONE.Y - 10, this.laneWidth, HIT_ZONE.HEIGHT + 20);
+    this.ctx.fillRect(x, HIT_ZONE.Y - 20, this.laneWidth, HIT_ZONE.HEIGHT + 40);
     this.ctx.globalAlpha = 1;
   }
 }

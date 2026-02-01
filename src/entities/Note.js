@@ -15,6 +15,7 @@ export class Note {
     this.type = noteType;
     this.lane = getLaneIndex(noteType, NOTES);
     this.isBonus = isBonus;
+    this.bonusImageIndex = isBonus ? Math.floor(Math.random() * 100) : 0; // Index pour rotation d'images
     this.hit = false;
     this.missed = false;
 
@@ -116,6 +117,7 @@ export class Note {
       type: this.type,
       lane: this.lane,
       isBonus: this.isBonus,
+      bonusImageIndex: this.bonusImageIndex,
       hit: this.hit,
       missed: this.missed,
       alpha,

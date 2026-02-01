@@ -5,6 +5,7 @@
 
 import { Game } from './game.js';
 import { LEVELS, GAME_STATE, LIVES } from './config.js';
+import { leaderboard } from './services/Leaderboard.js';
 
 // Attendre le chargement du DOM
 document.addEventListener('DOMContentLoaded', () => {
@@ -31,6 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Créer le sélecteur de niveau
   createLevelSelector(game);
+
+  // Configurer les modales (aide et leaderboard)
+  setupModals();
+
+  // Afficher l'aide au premier lancement
+  showHelpIfFirstTime();
 
   // Exposer le jeu pour le debug (optionnel)
   window.game = game;
@@ -233,4 +240,145 @@ function createLevelSelector(game) {
   if (levelName) {
     levelName.textContent = LEVELS[0].name;
   }
+}
+
+/**
+ * Configure les modales (aide et leaderboard)
+ */
+function setupModals() {
+  // Modal d'aide
+  const helpModal = document.getElementById('help-modal');
+  const helpOkBtn = document.getElementById('help-ok-btn');
+  const helpBtn = document.getElementById('help-btn');
+  const dontShowAgain = document.getElementById('dont-show-again');
+
+  if (helpOkBtn) {
+    helpOkBtn.addEventListener('click', () => {
+      if (dontShowAgain && dontShowAgain.checked) {
+        localStorage.setItem('piano-hero-help-seen', 'true');
+      }
+      hideHelpModal();
+    });
+  }
+
+  if (helpBtn) {
+    helpBtn.addEventListener('click', () => {
+      showHelpModal();
+    });
+  }
+
+  // Fermer avec Échap
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Escape') {
+      hideHelpModal();
+      hideLeaderboardModal();
+    }
+  });
+
+  // Modal leaderboard
+  const leaderboardModal = document.getElementById('leaderboard-modal');
+  const leaderboardBtn = document.getElementById('leaderboard-btn');
+  const leaderboardCloseBtn = document.getElementById('leaderboard-close-btn');
+
+  if (leaderboardBtn) {
+    leaderboardBtn.addEventListener('click', () => {
+      showLeaderboardModal();
+    });
+  }
+
+  if (leaderboardCloseBtn) {
+    leaderboardCloseBtn.addEventListener('click', () => {
+      hideLeaderboardModal();
+    });
+  }
+}
+
+/**
+ * Affiche l'aide au premier lancement
+ */
+function showHelpIfFirstTime() {
+  const helpSeen = localStorage.getItem('piano-hero-help-seen');
+  if (!helpSeen) {
+    showHelpModal();
+  } else {
+    hideHelpModal();
+  }
+}
+
+/**
+ * Affiche la modal d'aide
+ */
+function showHelpModal() {
+  const helpModal = document.getElementById('help-modal');
+  if (helpModal) {
+    helpModal.style.display = 'flex';
+    helpModal.classList.remove('hidden');
+  }
+}
+
+/**
+ * Cache la modal d'aide
+ */
+function hideHelpModal() {
+  const helpModal = document.getElementById('help-modal');
+  if (helpModal) {
+    helpModal.style.display = 'none';
+    helpModal.classList.add('hidden');
+  }
+}
+
+/**
+ * Affiche la modal leaderboard
+ */
+async function showLeaderboardModal() {
+  const modal = document.getElementById('leaderboard-modal');
+  const statusEl = document.querySelector('.leaderboard-status');
+
+  if (modal) {
+    modal.style.display = 'flex';
+    modal.classList.remove('hidden');
+
+    // Mettre à jour le statut
+    if (statusEl) {
+      statusEl.textContent = leaderboard.getStatus();
+    }
+
+    // Charger les scores
+    const scores = await leaderboard.getTopScores(5);
+    updateLeaderboardDisplay(scores);
+  }
+}
+
+/**
+ * Cache la modal leaderboard
+ */
+function hideLeaderboardModal() {
+  const modal = document.getElementById('leaderboard-modal');
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.add('hidden');
+  }
+}
+
+/**
+ * Met à jour l'affichage du leaderboard
+ * @param {Array} scores - Liste des scores
+ */
+function updateLeaderboardDisplay(scores) {
+  const list = document.getElementById('leaderboard-list');
+  if (!list) return;
+
+  const entries = list.querySelectorAll('.leaderboard-entry');
+  entries.forEach((entry, index) => {
+    const nameEl = entry.querySelector('.name');
+    const scoreEl = entry.querySelector('.lb-score');
+
+    if (scores[index]) {
+      nameEl.textContent = scores[index].player_name || '---';
+      scoreEl.textContent = scores[index].score || 0;
+    } else {
+      nameEl.textContent = '---';
+      scoreEl.textContent = '0';
+    }
+  });
 }

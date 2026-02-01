@@ -3,11 +3,11 @@
  * Contient toutes les constantes : dimensions, couleurs, niveaux, mapping clavier
  */
 
-// Dimensions du canvas (résolution native Game Boy style)
+// Dimensions du canvas (résolution HD)
 export const CANVAS = {
-  WIDTH: 320,           // Largeur native
-  HEIGHT: 240,          // Hauteur native
-  SCALE: 2              // Facteur d'échelle pour l'affichage
+  WIDTH: 640,           // Largeur native HD
+  HEIGHT: 480,          // Hauteur native HD
+  SCALE: 1              // Pas de scaling, résolution native affichée
 };
 
 // Palette de couleurs Cyberpunk/Neon - Orange (inspiré de witch_case)
@@ -51,16 +51,16 @@ export const NOTE_TO_KEY = {
 
 // Dimensions des notes
 export const NOTE = {
-  WIDTH: Math.floor(CANVAS.WIDTH / NOTES.length) - 4,  // Largeur d'une note
-  HEIGHT: 20,           // Hauteur d'une note
-  PADDING: 2            // Espacement entre les notes et les bords de lane
+  WIDTH: Math.floor(CANVAS.WIDTH / NOTES.length) - 8,  // Largeur d'une note
+  HEIGHT: 40,           // Hauteur d'une note (doublée pour HD)
+  PADDING: 4            // Espacement entre les notes et les bords de lane
 };
 
 // Zone de hit (où le joueur doit appuyer)
 export const HIT_ZONE = {
-  Y: CANVAS.HEIGHT - 40,  // Position Y de la zone
-  HEIGHT: 24,             // Hauteur de la zone
-  TOLERANCE: 15           // Tolérance en pixels (avant/après)
+  Y: CANVAS.HEIGHT - 80,  // Position Y de la zone
+  HEIGHT: 48,             // Hauteur de la zone (doublée pour HD)
+  TOLERANCE: 30           // Tolérance en pixels (doublée pour HD)
 };
 
 // Configuration des niveaux
@@ -102,8 +102,22 @@ export const NOTE_FREQ = {
   'B': 493.88
 };
 
-// Mélodie de fond (séquence de notes)
-export const MELODY = ['C', 'E', 'G', 'E', 'C', 'E', 'G', 'A', 'G', 'E', 'D', 'E', 'F', 'E', 'D', 'C'];
+// Mélodie de fond - "Souvenirs d'Hiver" (inspirée, avec touche personnelle)
+// Une mélodie nostalgique et douce, évoquant des souvenirs chaleureux
+export const MELODY = [
+  // Phrase 1 - Ouverture douce et montante
+  'E', 'G', 'A', 'G',
+  'E', 'D', 'C', 'D',
+  // Phrase 2 - Écho et variation
+  'E', 'G', 'A', 'B',
+  'A', 'G', 'E', 'D',
+  // Phrase 3 - Moment de réflexion
+  'C', 'E', 'G', 'E',
+  'F', 'A', 'G', 'F',
+  // Phrase 4 - Résolution nostalgique
+  'E', 'D', 'C', 'E',
+  'D', 'C', 'D', 'C'
+];
 
 // Configuration des bonus
 export const BONUS = {
@@ -137,3 +151,26 @@ export const GAME_STATE = {
   PAUSED: 'paused',
   GAME_OVER: 'gameover'
 };
+
+// Configuration Leaderboard (Supabase)
+export const LEADERBOARD = {
+  ENABLED: false,  // Mettre à true pour activer
+  SUPABASE_URL: '', // URL de votre instance Supabase
+  SUPABASE_KEY: '', // Clé anonyme Supabase
+  TABLE_NAME: 'piano_hero_scores'
+};
+
+/*
+ * Pour activer le leaderboard :
+ * 1. Créer un projet sur https://supabase.com
+ * 2. Créer une table 'piano_hero_scores' avec les colonnes :
+ *    - id (int8, primary key, auto-increment)
+ *    - player_name (text)
+ *    - score (int4)
+ *    - level (int4)
+ *    - created_at (timestamptz, default: now())
+ * 3. Configurer les Row Level Security (RLS) policies
+ * 4. Copier l'URL et la clé anon dans LEADERBOARD ci-dessus
+ * 5. Installer le client : npm install @supabase/supabase-js
+ * 6. Mettre ENABLED à true
+ */

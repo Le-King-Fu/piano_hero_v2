@@ -7,7 +7,9 @@ Jeu de rythme style cyberpunk/neon où le joueur doit attraper les notes tombant
 - **Build** : Vite 5.x
 - **Tests** : Vitest avec couverture v8
 - **Style** : Cyberpunk/neon avec effets de glow (inspiré de witch_case)
-- **Audio** : Web Audio API (ondes carrées 8-bit)
+- **Audio** : Web Audio API
+  - Notes de jeu : ondes carrées 8-bit
+  - Mélodie de fond : onde triangle (son doux et nostalgique)
 
 ## Architecture
 
@@ -18,16 +20,63 @@ src/
 ├── config.js        # Constantes globales (couleurs, niveaux, touches, vies)
 │
 ├── entities/
-│   └── Note.js      # Entité note tombante
+│   ├── Note.js      # Entité note tombante
+│   └── bonus_pic/   # Images bonus (rotation aléatoire)
+│       ├── extracted_face_1.png
+│       ├── extracted_face_2.png
+│       ├── extracted_face_k1.png
+│       ├── extracted_face_k2.png
+│       └── extracted_face_k3.png
 │
 ├── systems/
 │   ├── Input.js     # Gestion clavier et tactile
-│   ├── Renderer.js  # Rendu canvas avec effets neon
+│   ├── Renderer.js  # Rendu canvas avec effets neon + rotation images bonus
 │   └── Audio.js     # Sons 8-bit
+│
+├── services/
+│   └── Leaderboard.js  # Service Supabase pour classement (désactivé)
 │
 └── utils/
     └── helpers.js   # Fonctions utilitaires
 ```
+
+## Images bonus
+
+Les notes bonus affichent une image aléatoire parmi celles disponibles :
+- `bonus_piano.png` (racine du projet)
+- `src/entities/bonus_pic/extracted_face_*.png`
+
+Pour ajouter de nouvelles images, les placer dans `src/entities/bonus_pic/` et mettre à jour la liste dans `Renderer.js` (méthode `loadBonusImages`).
+
+## Boomer Helper (Modal d'aide)
+
+- S'affiche automatiquement au premier lancement
+- Explique les contrôles de jeu (A S D F G H J, Espace, Échap)
+- Checkbox "Ne plus afficher" (stocké en localStorage)
+- Bouton "?" dans l'UI pour réafficher
+
+## Leaderboard (Supabase)
+
+**Statut** : Désactivé (placeholder)
+
+Pour activer :
+1. Créer un projet sur https://supabase.com
+2. Créer la table `piano_hero_scores` :
+   ```sql
+   CREATE TABLE piano_hero_scores (
+     id BIGSERIAL PRIMARY KEY,
+     player_name TEXT NOT NULL,
+     score INTEGER NOT NULL,
+     level INTEGER DEFAULT 1,
+     created_at TIMESTAMPTZ DEFAULT NOW()
+   );
+   ```
+3. Configurer les RLS policies pour autoriser les lectures/écritures
+4. Dans `config.js`, renseigner :
+   - `LEADERBOARD.SUPABASE_URL`
+   - `LEADERBOARD.SUPABASE_KEY`
+   - `LEADERBOARD.ENABLED = true`
+5. Installer : `npm install @supabase/supabase-js`
 
 ## Conventions
 
@@ -38,13 +87,17 @@ src/
 - JSDoc pour les fonctions publiques
 
 ### Style visuel - Cyberpunk/Neon Orange
-- Résolution native : 320×240
-- Affichage upscalé ×2 : 640×480
-- Police : 'Courier New', monospace
+- Résolution native HD : 640×480 (pas de scaling, rendu net)
+- Police : 'Courier New', monospace (tailles doublées pour HD)
 - Thème sombre avec accents néon orange et vert
 - Effets de glow (text-shadow, box-shadow)
 - Animations pulse pour les éléments importants
 - **Emphase sur les touches clavier** (A, S, D, F, G, H, J) plutôt que les notes musicales
+
+### Mobile
+- Touches piano visibles et jouables (48x56px, police 16px bold)
+- Canvas responsive (100% largeur sur petits écrans)
+- Labels des touches toujours affichés
 
 ### Tests
 - Fichiers `*.test.js` dans `tests/`
@@ -146,6 +199,26 @@ box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
 ## Configuration
 
 ```javascript
+// Canvas HD
+CANVAS = {
+  WIDTH: 640,    // Largeur native HD
+  HEIGHT: 480,   // Hauteur native HD
+  SCALE: 1       // Pas de scaling
+}
+
+// Notes (dimensions HD)
+NOTE = {
+  HEIGHT: 40,    // Hauteur doublée pour HD
+  PADDING: 4
+}
+
+// Zone de hit (HD)
+HIT_ZONE = {
+  Y: 400,        // Position Y
+  HEIGHT: 48,    // Hauteur doublée
+  TOLERANCE: 30  // Tolérance doublée
+}
+
 // Vies
 LIVES = {
   INITIAL: 5,    // Vies au départ

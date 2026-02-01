@@ -134,10 +134,39 @@ export class Audio {
   }
 
   /**
+   * Joue une note de mélodie avec un son plus doux (onde triangle)
+   * @param {number} frequency - Fréquence en Hz
+   * @param {number} duration - Durée en secondes
+   * @param {number} volume - Volume (0-1)
+   */
+  playMelodyTone(frequency, duration = 0.5, volume = 0.1) {
+    if (!this.context || this.muted) return;
+
+    const oscillator = this.context.createOscillator();
+    const gainNode = this.context.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(this.masterGain);
+
+    // Onde triangle pour un son plus doux et chaleureux
+    oscillator.type = 'triangle';
+    oscillator.frequency.setValueAtTime(frequency, this.context.currentTime);
+
+    // Enveloppe douce (attaque lente, déclin progressif)
+    gainNode.gain.setValueAtTime(0, this.context.currentTime);
+    gainNode.gain.linearRampToValueAtTime(volume, this.context.currentTime + 0.05);
+    gainNode.gain.setValueAtTime(volume, this.context.currentTime + duration * 0.6);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + duration);
+
+    oscillator.start(this.context.currentTime);
+    oscillator.stop(this.context.currentTime + duration);
+  }
+
+  /**
    * Démarre la mélodie de fond
    * @param {number} interval - Intervalle entre les notes (ms)
    */
-  startMelody(interval = 400) {
+  startMelody(interval = 500) {
     this.stopMelody();
     this.melodyIndex = 0;
 
@@ -147,7 +176,8 @@ export class Audio {
       const note = MELODY[this.melodyIndex];
       const freq = NOTE_FREQ[note];
       if (freq) {
-        this.playTone(freq, 0.3, 0.08); // Volume faible pour la mélodie de fond
+        // Son doux et nostalgique avec onde triangle
+        this.playMelodyTone(freq, 0.45, 0.12);
       }
       this.melodyIndex = (this.melodyIndex + 1) % MELODY.length;
     }, interval);
