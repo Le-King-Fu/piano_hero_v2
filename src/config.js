@@ -63,13 +63,16 @@ export const HIT_ZONE = {
   TOLERANCE: 30           // Tolérance en pixels (doublée pour HD)
 };
 
-// Configuration des niveaux
+// Configuration des niveaux (8 niveaux)
 export const LEVELS = [
   { speed: 0.8,  spawnInterval: 1600, name: 'Débutant' },
   { speed: 1.0,  spawnInterval: 1300, name: 'Facile' },
   { speed: 1.3,  spawnInterval: 1000, name: 'Moyen' },
   { speed: 1.6,  spawnInterval: 800,  name: 'Difficile' },
-  { speed: 2.0,  spawnInterval: 600,  name: 'Expert' }
+  { speed: 2.0,  spawnInterval: 600,  name: 'Expert' },
+  { speed: 2.4,  spawnInterval: 500,  name: 'Maître' },
+  { speed: 2.8,  spawnInterval: 400,  name: 'Légende' },
+  { speed: 3.2,  spawnInterval: 350,  name: 'Impossible' }
 ];
 
 // Mapping clavier -> note

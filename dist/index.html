@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Héro du Piano</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <script type="module" crossorigin src="./assets/index-BIzgHVI7.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-BD_BV57c.css">
+</head>
+<body>
+  <!-- Modal d'aide (Boomer Helper) -->
+  <div id="help-modal" class="modal">
+    <div class="modal-content">
+      <h2>COMMENT JOUER</h2>
+      <div class="help-section">
+        <p>Des notes tombent du haut de l'écran.</p>
+        <p>Appuie sur la bonne touche quand la note arrive en bas !</p>
+      </div>
+      <div class="help-keys">
+        <span class="help-key">A</span>
+        <span class="help-key">S</span>
+        <span class="help-key">D</span>
+        <span class="help-key">F</span>
+        <span class="help-key">G</span>
+        <span class="help-key">H</span>
+        <span class="help-key">J</span>
+      </div>
+      <div class="help-section">
+        <p><strong>ESPACE</strong> = Pause</p>
+        <p><strong>ÉCHAP</strong> = Menu</p>
+      </div>
+      <div class="help-tips">
+        <p>Attrape les notes dorées pour des BONUS !</p>
+        <p>Tu as 5 vies. Ne rate pas trop de notes !</p>
+      </div>
+      <button id="help-ok-btn">OK, J'AI COMPRIS !</button>
+      <label class="help-checkbox">
+        <input type="checkbox" id="dont-show-again">
+        Ne plus afficher ce message
+      </label>
+    </div>
+  </div>
+
+  <!-- Modal Leaderboard (placeholder) -->
+  <div id="leaderboard-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <h2>CLASSEMENT</h2>
+      <div id="leaderboard-list">
+        <div class="leaderboard-entry">
+          <span class="rank">1.</span>
+          <span class="name">---</span>
+          <span class="lb-score">0</span>
+        </div>
+        <div class="leaderboard-entry">
+          <span class="rank">2.</span>
+          <span class="name">---</span>
+          <span class="lb-score">0</span>
+        </div>
+        <div class="leaderboard-entry">
+          <span class="rank">3.</span>
+          <span class="name">---</span>
+          <span class="lb-score">0</span>
+        </div>
+        <div class="leaderboard-entry">
+          <span class="rank">4.</span>
+          <span class="name">---</span>
+          <span class="lb-score">0</span>
+        </div>
+        <div class="leaderboard-entry">
+          <span class="rank">5.</span>
+          <span class="name">---</span>
+          <span class="lb-score">0</span>
+        </div>
+      </div>
+      <p class="leaderboard-status">Leaderboard désactivé</p>
+      <button id="leaderboard-close-btn">FERMER</button>
+    </div>
+  </div>
+
+  <div id="game-container">
+    <!-- Canvas du jeu -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Interface utilisateur -->
+    <div id="ui">
+      <div id="scores">
+        <div id="score">SCORE: <span>0</span></div>
+        <div id="lives">VIES: <span>♥♥♥♥♥</span></div>
+        <div id="high-score">RECORD: <span>0</span></div>
+      </div>
+
+      <div id="controls">
+        <!-- Sélecteur de niveau -->
+        <div id="level-section">
+          <span id="level-label">NIVEAU:</span>
+          <div id="level-selector"></div>
+          <span id="level-name"></span>
+        </div>
+
+        <!-- Boutons de contrôle -->
+        <div id="buttons">
+          <button id="start-btn">JOUER</button>
+          <button id="mute-btn">SON: ON</button>
+          <button id="leaderboard-btn">SCORES</button>
+          <button id="help-btn">?</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Touches de contrôle -->
+    <div id="piano">
+      <div class="key" data-note="C">A</div>
+      <div class="key" data-note="D">S</div>
+      <div class="key" data-note="E">D</div>
+      <div class="key" data-note="F">F</div>
+      <div class="key" data-note="G">G</div>
+      <div class="key" data-note="A">H</div>
+      <div class="key" data-note="B">J</div>
+    </div>
+
+    <!-- Instructions -->
+    <div id="instructions">
+      <p>TOUCHES: A S D F G H J | ESPACE: Pause | ÉCHAP: Menu</p>
+    </div>
+  </div>
+
+</body>
+</html>

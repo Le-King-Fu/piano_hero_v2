@@ -151,6 +151,10 @@ export class Game {
       this._saveHighScore();
     }
 
+    // Réinitialiser le niveau au niveau de départ
+    this.currentLevel = this.startingLevel;
+    if (this.onLevelChange) this.onLevelChange(this.currentLevel);
+
     this.state = GAME_STATE.GAME_OVER;
     if (this.onStateChange) this.onStateChange(this.state);
   }

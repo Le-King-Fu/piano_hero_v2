@@ -144,14 +144,17 @@ COLORS = {
 - 5 niveaux de difficulté : Débutant → Facile → Moyen → Difficile → Expert
 - Vitesse et fréquence des notes augmentent à chaque niveau
 
-### Niveaux
-| Niveau    | Vitesse | Intervalle spawn |
-|-----------|---------|------------------|
-| Débutant  | 0.8     | 1600ms           |
-| Facile    | 1.0     | 1300ms           |
-| Moyen     | 1.3     | 1000ms           |
-| Difficile | 1.6     | 800ms            |
-| Expert    | 2.0     | 600ms            |
+### Niveaux (8 niveaux)
+| Niveau     | Vitesse | Intervalle spawn |
+|------------|---------|------------------|
+| Débutant   | 0.8     | 1600ms           |
+| Facile     | 1.0     | 1300ms           |
+| Moyen      | 1.3     | 1000ms           |
+| Difficile  | 1.6     | 800ms            |
+| Expert     | 2.0     | 600ms            |
+| Maître     | 2.4     | 500ms            |
+| Légende    | 2.8     | 400ms            |
+| Impossible | 3.2     | 350ms            |
 
 ## Mapping clavier
 

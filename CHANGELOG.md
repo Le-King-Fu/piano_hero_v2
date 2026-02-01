@@ -5,6 +5,7 @@ Toutes les modifications notables du projet sont documentées ici.
 ## [Unreleased]
 
 ### Ajouté
+- **3 nouveaux niveaux de difficulté** : Maître, Légende, Impossible (8 niveaux au total)
 - **Boomer Helper** : Modal d'aide au premier lancement expliquant les contrôles
   - Affichage des touches A S D F G H J
   - Checkbox "Ne plus afficher"
@@ -37,6 +38,7 @@ Toutes les modifications notables du projet sont documentées ici.
 - **Notes plus grandes** : Hauteur doublée (40px) pour meilleure visibilité
 
 ### Corrigé
+- **Game Over** : Le jeu s'arrête correctement et réinitialise la difficulté au niveau de départ
 - Flou sur certains écrans dû au scaling CSS
 - Touches invisibles sur mobile (labels cachés)
 
